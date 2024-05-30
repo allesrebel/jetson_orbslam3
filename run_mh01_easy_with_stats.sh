@@ -10,12 +10,12 @@ trap "echo 'The script is terminated'; kill -15 $(jobs -p); exit" SIGINT
 
 # start timing with JTOP
 python3 stats/collect_jtop_stats.py > jtop_stats.log &
-jtop_pid = $!
+jtop_pid=$!
 echo "$jtop_pid is jtop"
 
 # start perf
 stats/kernel/kernel-jammy-src/tools/perf/perf record &
-perf_pid = $!
+perf_pid=$!
 echo "$perf_pid is perf"
 
 # move into orbslam for the final command
