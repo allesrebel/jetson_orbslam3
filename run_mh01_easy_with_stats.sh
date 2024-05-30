@@ -14,7 +14,7 @@ jtop_pid=$!
 echo "$jtop_pid is jtop"
 
 # start perf
-stats/kernel/kernel-jammy-src/tools/perf/perf record &
+stats/kernel/kernel-jammy-src/tools/perf/perf record -e cache-misses -a &
 perf_pid=$!
 echo "$perf_pid is perf"
 
@@ -32,7 +32,8 @@ wait -n $perf_pid
 # save results into results folder
 echo 'saving results now'
 cd && mkdir -p result_mh01
-mv perf.data jtop_stats.log result_mh01/
+stats/kernel/kernel-jammy-src/tools/perf/perf script -i perf.data > perf_script_output.txt
+mv perf.data perf_script_output.txt jtop_stats.log result_mh01/
 mv orb_slam3/LocalMapTimeStats.txt orb_slam3/ExecMean.txt orb_slam3/f_dataset-MH01_stereo.txt orb_slam3/SessionInfo.txt orb_slam3/kf_dataset-MH01_stereo.txt orb_slam3/LBA_Stats.txt orb_slam3/TrackingTimeStats.txt orb_slam3/mh01_cout.log result_mh01/
 chmod 777 result_mh01/perf.data
 echo 'saved in result_mh01!'
