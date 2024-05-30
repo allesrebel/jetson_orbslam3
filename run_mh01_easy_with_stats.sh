@@ -22,7 +22,7 @@ echo "$perf_pid is perf"
 cd orb_slam3
 
 # finally do the actual orbslam with sample video
-./Examples/Stereo/stereo_euroc ./Vocabulary/ORBvoc.txt ./Examples/Stereo/EuRoC.yaml ~/Datasets/EuRoc/MH01 ./Examples/Stereo/EuRoC_TimeStamps/MH01.txt dataset-MH01_stereo
+./Examples/Stereo/stereo_euroc ./Vocabulary/ORBvoc.txt ./Examples/Stereo/EuRoC.yaml ~/Datasets/EuRoc/MH01 ./Examples/Stereo/EuRoC_TimeStamps/MH01.txt dataset-MH01_stereo 2>&1 | tee mh01_cout.log
 
 # terminate the perf / jtop via SIGKILL
 kill -15 $(jobs -p)
@@ -33,6 +33,6 @@ wait -n $perf_pid
 echo 'saving results now'
 cd && mkdir -p result_mh01
 mv perf.data jtop_stats.log result_mh01/
-mv orb_slam3/LocalMapTimeStats.txt orb_slam3/ExecMean.txt orb_slam3/f_dataset-MH01_stereo.txt orb_slam3/SessionInfo.txt orb_slam3/kf_dataset-MH01_stereo.txt orb_slam3/LBA_Stats.txt orb_slam3/TrackingTimeStats.txt result_mh01/
+mv orb_slam3/LocalMapTimeStats.txt orb_slam3/ExecMean.txt orb_slam3/f_dataset-MH01_stereo.txt orb_slam3/SessionInfo.txt orb_slam3/kf_dataset-MH01_stereo.txt orb_slam3/LBA_Stats.txt orb_slam3/TrackingTimeStats.txt orb_slam3/mh01_cout.log result_mh01/
 chmod 777 result_mh01/perf.data
 echo 'saved in result_mh01!'
