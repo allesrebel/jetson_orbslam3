@@ -52,6 +52,57 @@ def convert_to_dataframe(file_path):
 
     return df
 
+# collect cache misses from perf output
+def get_cache_misses(file_path):
+    with open(file_path, 'r') as file:
+        lines = file.readlines()
+
+    # Initialize lists to store timestamps and cache misses
+    timestamps = []
+    cache_misses = []
+
+    # Regular expression to match the cache misses event for a specific executable
+    executable_name = "stereo_euroc"
+    cache_miss_pattern = re.compile(rf"\s+{executable_name}\s+\d+\s+\[\d+\]\s+(\d+\.\d+):\s+(\d+)\s+cache-misses:")
+
+    # Parse the lines to extract timestamps and cache misses
+    for line in lines:
+        match = cache_miss_pattern.search(line)
+        if match:
+            timestamp = float(match.group(1))
+            misses = int(match.group(2))
+            # Convert timestamp to datetime assuming it is in seconds since the epoch
+            timestamps.append(datetime.fromtimestamp(timestamp))
+            cache_misses.append(misses)
+
+    # Debug: Check if lists are populated
+    if not timestamps or not cache_misses:
+        print("No cache misses were recorded.")
+    else:
+        print(f"Recorded {len(timestamps)} cache miss events.")
+
+    # Convert the lists to a DataFrame
+    df = pd.DataFrame({'timestamp': timestamps, 'misses': cache_misses})
+
+    # Convert the 'timestamp' column to datetime and set it as the index
+    df['timestamp'] = pd.to_datetime(df['timestamp'])
+    df.set_index('timestamp', inplace=True)
+
+    # Resample the data to every 100 milliseconds and calculate the mean
+    df_resampled = df.resample('100L').mean().reset_index()
+
+    # Set the first timestamp to 0 and calculate offsets
+    df_resampled['timestamp'] = (df_resampled['timestamp'] - df_resampled['timestamp'].min()).dt.total_seconds()
+
+    # Debug: Check the DataFrame
+    if df_resampled.empty:
+        print("DataFrame is empty after resampling.")
+    else:
+        print("DataFrame is populated.")
+        print(df_resampled.head())
+
+    return df_resampled
+
 # Function to load data
 def load_data(directory, file_name):
     file_path = f"{directory}/{file_name}"
@@ -73,7 +124,8 @@ def main(directory, fps):
     files = {
         # 'LocalMapTimeStats.txt': 'Local Map Time Stats',
         'TrackingTimeStats.txt': 'Tracking Time Stats',
-        'jtop_stats.log': 'System Stats'
+        'jtop_stats.log': 'System Stats',
+        'perf_script_output.txt': 'Cache Misses'
         # 'LBA_Stats.txt': 'LBA Stats'
     }
     
@@ -87,13 +139,19 @@ def main(directory, fps):
 
             for col in data.columns:
                 x_values = [i * (1/fps) for i in range(len(data))]
-                fig.add_trace(go.Scatter(x=x_values, y=data[col], mode='lines+markers', name=f"{label}: {col}"))
+                fig.add_trace(go.Scatter(x=x_values, y=data[col], mode='lines+markers', name=f"{label}: {col}", visible='legendonly'))
 
         if( file_name == 'jtop_stats.log' ):
             data = convert_to_dataframe(f"{directory}/{file_name}")
             for col in data.columns:
                 if col != 'time':  # Avoid plotting the time column itself
-                    fig.add_trace(go.Scatter(x=data['time'], y=data[col], mode='lines+markers', name=f"{label}: {col}"))
+                    fig.add_trace(go.Scatter(x=data['time'], y=data[col], mode='lines+markers', name=f"{label}: {col}", visible='legendonly'))
+
+        if( file_name == 'perf_script_output.txt'):
+            data = get_cache_misses(f"{directory}/{file_name}")
+            for col in data.columns:
+                if col != 'timestamp':  # Avoid plotting the time column itself
+                    fig.add_trace(go.Scatter(x=data['timestamp'], y=data[col], mode='lines+markers', name=f"{label}: {col}", visible='legendonly'))
 
     # Update the layout
     fig.update_layout(
