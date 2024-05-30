@@ -2,3 +2,4 @@ build
 Datasets
 .*
 result*
+stats/*
