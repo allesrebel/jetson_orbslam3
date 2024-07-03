@@ -34,6 +34,6 @@ echo 'saving results now'
 cd && mkdir -p result_mh04
 stats/kernel/kernel-jammy-src/tools/perf/perf script -i perf.data > perf_script_output.txt
 mv perf.data perf_script_output.txt jtop_stats.log result_mh04/
-mv orb_slam3/LocalMapTimeStats.txt orb_slam3/ExecMean.txt orb_slam3/f_dataset-MH04_stereo.txt orb_slam3/SessionInfo.txt orb_slam3/kf_dataset-MH01_stereo.txt orb_slam3/LBA_Stats.txt orb_slam3/TrackingTimeStats.txt orb_slam3/mh04_cout.log result_mh04/
+mv orb_slam3/LocalMapTimeStats.txt orb_slam3/ExecMean.txt orb_slam3/f_dataset-MH04_stereo.txt orb_slam3/SessionInfo.txt orb_slam3/kf_dataset-MH04_stereo.txt orb_slam3/LBA_Stats.txt orb_slam3/TrackingTimeStats.txt orb_slam3/mh04_cout.log result_mh04/
 chmod 777 result_mh04/perf.data
 echo 'saved in result_mh04!'
