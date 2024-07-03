@@ -6,6 +6,9 @@ cd stats && source setup_env.sh && cd ..
 # Finish up by building ORBSlam3
 apt update
 
+# install stressing tools
+apt install stress-ng
+
 # depedencies of orbslam and pangolin
 apt install -y libboost-all-dev libglew-dev libssl-dev
 
