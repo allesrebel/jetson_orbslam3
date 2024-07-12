@@ -152,10 +152,22 @@ def main(directory, fps):
             for col in data.columns:
                 if col != 'timestamp':  # Avoid plotting the time column itself
                     fig.add_trace(go.Scatter(x=data['timestamp'], y=data[col], mode='lines+markers', name=f"{label}: {col}", visible='legendonly'))
+    # Add a horizontal line representing the total
+    frame_duration_ms = (1 / fps) * 1000
+    fig.add_shape(
+        type="line",
+        x0=0,
+        x1=1,
+        y0=frame_duration_ms,
+        y1=frame_duration_ms,
+        line=dict(color="red", width=2),
+        xref="paper",  # Use the paper coordinate system for x-axis (0 to 1)
+        yref="y"       # Use the y-axis coordinate system for y-axis
+    )
 
     # Update the layout
     fig.update_layout(
-        title="ORB SLAM3 Metrics Timeline",
+        title=f"{directory} Metrics Timeline",
         xaxis_title="Time (seconds)",
         yaxis_title="Time (ms)",
         legend_title="Metric",
